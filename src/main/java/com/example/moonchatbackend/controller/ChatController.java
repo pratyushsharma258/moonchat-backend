@@ -16,7 +16,6 @@ public class ChatController {
     private RedisService redisService;
 
     @MessageMapping("/chat/send")
-//    @SendTo("/topic/messages")
     public ChatMessage sendMessage(
             @Payload ChatMessage chatMessage,
             SimpMessageHeaderAccessor headerAccessor
