@@ -1,31 +1,29 @@
-package com.example.moonchatbackend.model;
+package com.example.moonchatbackend.model.request;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@Entity
-@Table(name = "users")
-public class User {
+import java.util.Set;
+
+@Getter
+@Setter
+public class SignUpRequest {
     @NotBlank(message = "Username is required")
-    public String username;
+    private String username;
+
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email is invalid")
+    private String email;
 
     @NotBlank(message = "Password is required")
     @Size(min = 8, message = "Password must be at least 8 characters long")
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]+$",
             message = "Password must contain at least one letter and one number")
-    public String password;
+    private String password;
 
-    @Email
-    @NotBlank(message = "Email is required")
-    public String email;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    public Long id;
-
+    private Set<String> role;
 }
