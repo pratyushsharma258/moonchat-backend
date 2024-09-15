@@ -1,5 +1,9 @@
 package com.example.moonchatbackend.controller;
 
+import com.example.moonchatbackend.config.Consumer;
+import com.example.moonchatbackend.config.Producer;
+import com.example.moonchatbackend.model.ChatMessage;
+import com.example.moonchatbackend.model.MessageType;
 import com.example.moonchatbackend.model.request.LoginRequest;
 import com.example.moonchatbackend.model.request.SignUpRequest;
 import com.example.moonchatbackend.model.response.JwtResponse;
@@ -12,7 +16,9 @@ import com.example.moonchatbackend.repository.UserRepository;
 import com.example.moonchatbackend.security.jwt.JwtUtils;
 import com.example.moonchatbackend.security.services.UserDetailsImpl;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,6 +32,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
@@ -44,6 +51,11 @@ public class AuthController {
 
     @Autowired
     JwtUtils jwtUtils;
+
+    @Autowired
+    Producer producer;
+    @Autowired
+    private Consumer consumer;
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -111,5 +123,18 @@ public class AuthController {
         userRepository.save(user);
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<?> test() {
+        ChatMessage message = new ChatMessage(1010L, MessageType.CHAT, "Hello", "World", "test");
+        try {
+            producer.updateMessages(message);
+            log.info("Message sent", message);
+            return new ResponseEntity<>("Message sent", HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Error sending message", e);
+            return new ResponseEntity<>("Error sending message", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
