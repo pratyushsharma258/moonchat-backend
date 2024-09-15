@@ -1,7 +1,7 @@
-package com.example.moonchatbackend.config;
+package com.example.moonchatbackend.config.socket;
 
-import com.example.moonchatbackend.model.ChatMessage;
-import com.example.moonchatbackend.model.MessageType;
+import com.example.moonchatbackend.model.chat.ChatMessage;
+import com.example.moonchatbackend.model.chat.MessageType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;

@@ -1,6 +1,7 @@
-package com.example.moonchatbackend.model;
+package com.example.moonchatbackend.model.chat;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,7 +21,15 @@ public class ChatMessage {
     @Enumerated(EnumType.STRING)
     private MessageType type;
 
+    @NotNull(message = "Message sent is empty.")
     private String content;
+
+    @NotNull(message = "Sender is required.")
     private String sender;
+
     private String receiver;
+
+    @ManyToOne
+    @JoinColumn(name = "group_id")
+    private ChatGroup chatGroup;
 }

@@ -1,6 +1,6 @@
-package com.example.moonchatbackend.config;
+package com.example.moonchatbackend.service;
 
-import com.example.moonchatbackend.model.ChatMessage;
+import com.example.moonchatbackend.model.chat.ChatMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

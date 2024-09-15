@@ -1,6 +1,5 @@
-package com.example.moonchatbackend.config;
+package com.example.moonchatbackend.config.redis;
 
-import com.example.moonchatbackend.model.RedisReceiver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;

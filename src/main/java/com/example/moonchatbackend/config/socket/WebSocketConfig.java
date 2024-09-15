@@ -1,4 +1,4 @@
-package com.example.moonchatbackend.config;
+package com.example.moonchatbackend.config.socket;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

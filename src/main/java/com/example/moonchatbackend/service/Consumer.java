@@ -1,6 +1,6 @@
-package com.example.moonchatbackend.config;
+package com.example.moonchatbackend.service;
 
-import com.example.moonchatbackend.model.ChatMessage;
+import com.example.moonchatbackend.model.chat.ChatMessage;
 import com.example.moonchatbackend.repository.ChatMessageRepository;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ import java.util.List;
 @Service
 public class Consumer {
 
-    private static final int BATCH_SIZE = 2;
+    private static final int BATCH_SIZE = 10;
     private final Logger logger = LoggerFactory.getLogger(Consumer.class);
 
     private List<ChatMessage> messageBuffer = new ArrayList<>();

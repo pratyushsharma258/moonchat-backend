@@ -1,6 +1,6 @@
 package com.example.moonchatbackend.controller;
 
-import com.example.moonchatbackend.model.ChatMessage;
+import com.example.moonchatbackend.model.chat.ChatMessage;
 import com.example.moonchatbackend.service.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;

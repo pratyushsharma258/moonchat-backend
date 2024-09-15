@@ -1,4 +1,4 @@
-package com.example.moonchatbackend.model;
+package com.example.moonchatbackend.config.redis;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;

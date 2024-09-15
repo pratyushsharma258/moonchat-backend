@@ -1,9 +1,5 @@
 package com.example.moonchatbackend.controller;
 
-import com.example.moonchatbackend.config.Consumer;
-import com.example.moonchatbackend.config.Producer;
-import com.example.moonchatbackend.model.ChatMessage;
-import com.example.moonchatbackend.model.MessageType;
 import com.example.moonchatbackend.model.request.LoginRequest;
 import com.example.moonchatbackend.model.request.SignUpRequest;
 import com.example.moonchatbackend.model.response.JwtResponse;
@@ -18,7 +14,6 @@ import com.example.moonchatbackend.security.services.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,6 +32,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
     @Autowired
     AuthenticationManager authenticationManager;
 
@@ -52,68 +48,48 @@ public class AuthController {
     @Autowired
     JwtUtils jwtUtils;
 
-    @Autowired
-    Producer producer;
-    @Autowired
-    private Consumer consumer;
-
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(item -> item.getAuthority())
-                .collect(Collectors.toList());
+        List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority()).collect(Collectors.toList());
 
-        return ResponseEntity.ok(new JwtResponse(jwt,
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getEmail(),
-                roles));
+        return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles));
     }
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: Username is already taken!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
         }
 
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: Email is already in use!"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
         }
 
-        User user = new User(signUpRequest.getUsername(), signUpRequest.getEmail(),
-                encoder.encode(signUpRequest.getPassword()));
+        User user = new User(signUpRequest.getUsername(), signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()));
 
         Set<String> strRoles = signUpRequest.getRole();
         Set<UserRole> roles = new HashSet<>();
 
         if (strRoles == null) {
-            UserRole userRole = roleRepository.findByName(Role.ROLE_USER)
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            UserRole userRole = roleRepository.findByName(Role.ROLE_USER).orElseThrow(() -> new RuntimeException("Error: Role is not found."));
             roles.add(userRole);
         } else {
             strRoles.forEach(role -> {
                 switch (role) {
                     case "admin":
-                        UserRole adminRole = roleRepository.findByName(Role.ROLE_ADMIN)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        UserRole adminRole = roleRepository.findByName(Role.ROLE_ADMIN).orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(adminRole);
 
                         break;
                     default:
-                        UserRole userRole = roleRepository.findByName(Role.ROLE_USER)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        UserRole userRole = roleRepository.findByName(Role.ROLE_USER).orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(userRole);
                 }
             });
@@ -125,16 +101,4 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
-    @GetMapping("/test")
-    public ResponseEntity<?> test() {
-        ChatMessage message = new ChatMessage(1010L, MessageType.CHAT, "Hello", "World", "test");
-        try {
-            producer.updateMessages(message);
-            log.info("Message sent", message);
-            return new ResponseEntity<>("Message sent", HttpStatus.OK);
-        } catch (Exception e) {
-            log.error("Error sending message", e);
-            return new ResponseEntity<>("Error sending message", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 }
