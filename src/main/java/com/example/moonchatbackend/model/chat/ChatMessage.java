@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Entity
 @Data
 @Builder
@@ -28,6 +27,11 @@ public class ChatMessage {
     private String sender;
 
     private String receiver;
+
+    @Column(name = "group_id", insertable = false, updatable = false)
+    private Long groupId;
+
+    private String sessionId;
 
     @ManyToOne
     @JoinColumn(name = "group_id")

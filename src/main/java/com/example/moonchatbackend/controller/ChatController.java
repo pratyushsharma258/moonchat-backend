@@ -1,11 +1,11 @@
 package com.example.moonchatbackend.controller;
 
 import com.example.moonchatbackend.model.chat.ChatMessage;
+import com.example.moonchatbackend.service.Producer;
 import com.example.moonchatbackend.service.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
@@ -15,25 +15,33 @@ public class ChatController {
     @Autowired
     private RedisService redisService;
 
+    @Autowired
+    private Producer producer;
+
     @MessageMapping("/chat/send")
-    public ChatMessage sendMessage(
-            @Payload ChatMessage chatMessage,
-            SimpMessageHeaderAccessor headerAccessor
-    ) {
+    public void sendMessage(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor) {
         String sessionId = headerAccessor.getSessionId();
-        redisService.sendMessage(chatMessage.getContent() + " from session: " + sessionId);
-        return chatMessage;
+        chatMessage.setSessionId(sessionId);
+        redisService.sendMessage(chatMessage);
+        producer.updateMessages(chatMessage);
     }
 
     @MessageMapping("/chat/adduser")
-    @SendTo("/topic/user")
-    public ChatMessage addUser(
-            @Payload ChatMessage chatMessage,
-            SimpMessageHeaderAccessor headerAccessor
-    ) {
+    public void addUser(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor) {
         headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
-        return chatMessage;
+        redisService.sendMessage(chatMessage);
+        producer.updateMessages(chatMessage);
     }
 
+    @MessageMapping("/chat/private")
+    public void sendPrivateMessage(@Payload ChatMessage chatMessage) {
+        redisService.sendMessage(chatMessage);
+        producer.updateMessages(chatMessage);
+    }
 
+    @MessageMapping("/chat/group")
+    public void sendGroupMessage(@Payload ChatMessage chatMessage) {
+        redisService.sendMessage(chatMessage);
+        producer.updateMessages(chatMessage);
+    }
 }

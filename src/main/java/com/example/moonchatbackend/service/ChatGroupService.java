@@ -5,14 +5,18 @@ import com.example.moonchatbackend.model.chat.ChatMessage;
 import com.example.moonchatbackend.model.users.User;
 import com.example.moonchatbackend.repository.ChatGroupRepository;
 import com.example.moonchatbackend.repository.ChatMessageRepository;
+import com.example.moonchatbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class ChatGroupService {
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private ChatGroupRepository chatGroupRepository;
@@ -20,10 +24,10 @@ public class ChatGroupService {
     @Autowired
     private ChatMessageRepository chatMessageRepository;
 
-    public ChatGroup createGroup(String groupName, Set<User> users) {
+    public ChatGroup createGroup(String groupName, List<User> users) {
         ChatGroup group = new ChatGroup();
         group.setGroupName(groupName);
-        group.setUsers(users);
+        group.setUsers(new HashSet<>(users));
         return chatGroupRepository.save(group);
     }
 
@@ -38,5 +42,30 @@ public class ChatGroupService {
         }
         return null;
     }
-}
 
+    public void deleteGroup(Long groupId) {
+        chatGroupRepository.deleteById(groupId);
+    }
+
+    public ChatGroup addMembersToGroup(Long groupId, List<Long> userIds) {
+        Optional<ChatGroup> groupOpt = chatGroupRepository.findById(groupId);
+        if (groupOpt.isPresent()) {
+            ChatGroup group = groupOpt.get();
+            List<User> usersToAdd = userRepository.findAllById(userIds);
+            group.getUsers().addAll(new HashSet<>(usersToAdd));
+            return chatGroupRepository.save(group);
+        }
+        return null;
+    }
+
+    public ChatGroup removeMembersFromGroup(Long groupId, List<Long> userIds) {
+        Optional<ChatGroup> groupOpt = chatGroupRepository.findById(groupId);
+        if (groupOpt.isPresent()) {
+            ChatGroup group = groupOpt.get();
+            List<User> usersToRemove = userRepository.findAllById(userIds);
+            group.getUsers().removeAll(new HashSet<>(usersToRemove));
+            return chatGroupRepository.save(group);
+        }
+        return null;
+    }
+}

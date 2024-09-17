@@ -18,6 +18,7 @@ public class Producer {
 
     public boolean updateMessages(ChatMessage message) {
         kafkaTemplate.send(TOPIC, message);
+        logger.info("Message sent to Kafka topic: {}", TOPIC);
         return true;
     }
 }
