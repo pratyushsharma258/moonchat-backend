@@ -9,9 +9,23 @@ import org.springframework.kafka.config.TopicBuilder;
 public class KafkaConfig {
 
     @Bean
-    public NewTopic topic() {
+    public NewTopic messagesTopic() {
         return TopicBuilder
                 .name("messages")
+                .build();
+    }
+
+    @Bean
+    public NewTopic uncommittedMessagesTopic() {
+        return TopicBuilder
+                .name("uncommitted-messages")
+                .build();
+    }
+
+    @Bean
+    public NewTopic groupMessagesTopic() {
+        return TopicBuilder
+                .name("remove-uncommitted-messages")
                 .build();
     }
 

@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,9 +24,13 @@ public class Consumer {
     @Autowired
     private ChatMessageRepository chatMessageRepository;
 
+    @Autowired
+    private KafkaTemplate<String, ChatMessage> kafkaTemplate;
+
     @KafkaListener(topics = "messages", groupId = "chat-receiver")
     public void consumeMessage(ChatMessage message) {
         messageBuffer.add(message);
+        kafkaTemplate.send("uncommitted-messages", message);
 
         if (messageBuffer.size() >= BATCH_SIZE) {
             saveBatchToDatabase();
@@ -36,6 +41,7 @@ public class Consumer {
     @Transactional
     public void saveBatchToDatabase() {
         chatMessageRepository.saveAll(messageBuffer);
+        messageBuffer.forEach(message -> kafkaTemplate.send("remove-uncommitted-messages", message));
         logger.info("Batch of {} messages saved to the database.", messageBuffer.size());
     }
 }
