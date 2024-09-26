@@ -16,7 +16,7 @@ import java.util.List;
 @Service
 public class Consumer {
 
-    private static final int BATCH_SIZE = 10;
+    private static final int BATCH_SIZE = 2;
     private final Logger logger = LoggerFactory.getLogger(Consumer.class);
 
     private List<ChatMessage> messageBuffer = new ArrayList<>();
@@ -30,6 +30,7 @@ public class Consumer {
     @KafkaListener(topics = "messages", groupId = "chat-receiver")
     public void consumeMessage(ChatMessage message) {
         messageBuffer.add(message);
+        logger.info("Message received to kafka: {}", message);
         kafkaTemplate.send("uncommitted-messages", message);
 
         if (messageBuffer.size() >= BATCH_SIZE) {

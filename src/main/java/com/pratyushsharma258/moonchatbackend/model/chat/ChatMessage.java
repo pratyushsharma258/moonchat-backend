@@ -36,4 +36,7 @@ public class ChatMessage {
     @ManyToOne
     @JoinColumn(name = "group_id")
     private ChatGroup chatGroup;
+
+    @NotNull(message = "Sent at is required.")
+    private String sentAt;
 }
