@@ -15,18 +15,4 @@ public class KafkaConfig {
                 .build();
     }
 
-    @Bean
-    public NewTopic uncommittedMessagesTopic() {
-        return TopicBuilder
-                .name("uncommitted-messages")
-                .build();
-    }
-
-    @Bean
-    public NewTopic groupMessagesTopic() {
-        return TopicBuilder
-                .name("remove-uncommitted-messages")
-                .build();
-    }
-
 }
